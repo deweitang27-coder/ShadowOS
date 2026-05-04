@@ -110,12 +110,6 @@ demo/
 ├── index.html     # HTML 骨架
 ├── style.css      # 全部样式（4200+ 行）
 ├── app.js         # 全部逻辑（3000+ 行）
-└── .trae/
-    ── specs/
-        └── web-os/
-            ├── spec.md      # 功能规范
-            ├── tasks.md     # 任务清单
-            └── checklist.md # 验收清单
 ```
 
 ## 浏览器支持
