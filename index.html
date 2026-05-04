@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShadowOS — 暗影系统</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2300ffff'/%3E%3Cstop offset='100%25' stop-color='%230088ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon points='16,2 30,10 30,22 16,30 2,22 2,10' fill='none' stroke='url(%23g)' stroke-width='2.5'/%3E%3Cpolygon points='16,8 24,12 24,20 16,24 8,20 8,12' fill='url(%23g)' opacity='0.6'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23000'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+</head>
+<body>
+  <div id="lock-screen">
+    <div class="lock-time" id="lock-time"></div>
+    <div class="lock-date" id="lock-date"></div>
+    <div class="lock-hint">点击任意位置解锁</div>
+  </div>
+
+  <div id="weather-widget">
+    <div class="weather-header">
+      <div class="weather-city-select" id="weather-city-select">
+        <span class="weather-city-name">北京</span>
+        <span class="weather-city-arrow">▼</span>
+      </div>
+      <button class="weather-refresh" id="weather-refresh" title="刷新">↻</button>
+    </div>
+    <div class="weather-body">
+      <div class="weather-main">
+        <div class="weather-icon" id="weather-icon">☀️</div>
+        <div class="weather-temp" id="weather-temp">26°</div>
+      </div>
+      <div class="weather-desc" id="weather-desc">晴朗</div>
+      <div class="weather-details">
+        <span> <span id="weather-humidity">45%</span></span>
+        <span>️ <span id="weather-wind">3级</span></span>
+      </div>
+    </div>
+    <div class="weather-forecast" id="weather-forecast">
+      <div class="forecast-day">明天 <span class="forecast-temp">28°/18°</span> ️</div>
+      <div class="forecast-day">后天 <span class="forecast-temp">25°/16°</span> 🌧️</div>
+      <div class="forecast-day">周四 <span class="forecast-temp">22°/14°</span> ️</div>
+    </div>
+    <div class="weather-city-dropdown" id="weather-city-dropdown">
+      <div class="city-option" data-city="北京">北京</div>
+      <div class="city-option" data-city="上海">上海</div>
+      <div class="city-option" data-city="广州">广州</div>
+      <div class="city-option" data-city="深圳">深圳</div>
+      <div class="city-option" data-city="杭州">杭州</div>
+      <div class="city-option" data-city="成都">成都</div>
+      <div class="city-option" data-city="东京">东京</div>
+      <div class="city-option" data-city="纽约">纽约</div>
+    </div>
+  </div>
+
+  <div id="pomodoro-widget">
+    <div class="pomodoro-header"> 番茄钟</div>
+    <div class="pomodoro-mode-tabs">
+      <button class="pomodoro-mode active" data-mode="work" data-time="25">专注</button>
+      <button class="pomodoro-mode" data-mode="break" data-time="5">休息</button>
+    </div>
+    <div class="pomodoro-timer-wrap">
+      <svg class="pomodoro-ring" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(0,255,255,0.1)" stroke-width="6"/>
+        <circle class="pomodoro-ring-progress" cx="60" cy="60" r="54" fill="none" stroke="url(#pomoGrad)" stroke-width="6" stroke-linecap="round" stroke-dasharray="339.292" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+        <defs>
+          <linearGradient id="pomoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff6b6b"/>
+            <stop offset="100%" stop-color="#00ffff"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="pomodoro-time-display" id="pomodoro-time">25:00</div>
+    </div>
+    <div class="pomodoro-status" id="pomodoro-status">专注时间</div>
+    <div class="pomodoro-controls">
+      <button class="pomodoro-btn" id="pomodoro-start">▶ 开始</button>
+      <button class="pomodoro-btn" id="pomodoro-pause" style="display:none;"> 暂停</button>
+      <button class="pomodoro-btn pomodoro-reset" id="pomodoro-reset"> 重置</button>
+    </div>
+    <div class="pomodoro-stats">
+      <div class="stat-item">
+        <span class="stat-num" id="pomodoro-count">0</span>
+        <span class="stat-label">完成</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" id="pomodoro-total">0</span>
+        <span class="stat-label">分钟</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="desktop">
+    <div class="desktop-icons">
+      <div class="desktop-icon" data-app="terminal">
+        <div class="icon-img terminal-icon">🖥️</div>
+        <div class="icon-label">Terminal</div>
+      </div>
+      <div class="desktop-icon" data-app="files">
+        <div class="icon-img files-icon">📁</div>
+        <div class="icon-label">Files</div>
+      </div>
+      <div class="desktop-icon" data-app="browser">
+        <div class="icon-img browser-icon">🌐</div>
+        <div class="icon-label">暗影浏览器</div>
+      </div>
+      <div class="desktop-icon" data-app="calculator">
+        <div class="icon-img calculator-icon">🧮</div>
+        <div class="icon-label">Calculator</div>
+      </div>
+      <div class="desktop-icon" data-app="notepad">
+        <div class="icon-img notepad-icon">📝</div>
+        <div class="icon-label">Notepad</div>
+      </div>
+      <div class="desktop-icon" data-app="sticky">
+        <div class="icon-img sticky-icon">📋</div>
+        <div class="icon-label">Sticky</div>
+      </div>
+      <div class="desktop-icon" data-app="calendar">
+        <div class="icon-img calendar-icon">📅</div>
+        <div class="icon-label">Calendar</div>
+      </div>
+      <div class="desktop-icon" data-app="clock">
+        <div class="icon-img clock-icon">⏰</div>
+        <div class="icon-label">Clock</div>
+      </div>
+      <div class="desktop-icon" data-app="draw">
+        <div class="icon-img draw-icon">🎨</div>
+        <div class="icon-label">Draw</div>
+      </div>
+      <div class="desktop-icon" data-app="music">
+        <div class="icon-img music-icon">🎵</div>
+        <div class="icon-label">Music</div>
+      </div>
+      <div class="desktop-icon" data-app="imageviewer">
+        <div class="icon-img imageviewer-icon">🖼️</div>
+        <div class="icon-label">ImageViewer</div>
+      </div>
+      <div class="desktop-icon" data-app="appstore">
+        <div class="icon-img appstore-icon">🛒</div>
+        <div class="icon-label">App Store</div>
+      </div>
+      <div class="desktop-icon" data-app="sysmon">
+        <div class="icon-img sysmon-icon">📊</div>
+        <div class="icon-label">系统监控</div>
+      </div>
+      <div class="desktop-icon" data-app="codeeditor">
+        <div class="icon-img codeeditor-icon">🖥️</div>
+        <div class="icon-label">代码编辑器</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="taskbar">
+    <div id="taskbar-start">
+      <button id="start-button">
+        <svg class="start-logo" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#00ffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#0088ff;stop-opacity:1" />
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <polygon points="16,2 30,10 30,22 16,30 2,22 2,10" fill="none" stroke="url(#logoGrad)" stroke-width="2.5" filter="url(#glow)"/>
+          <polygon points="16,8 24,12 24,20 16,24 8,20 8,12" fill="url(#logoGrad)" opacity="0.6"/>
+          <circle cx="16" cy="16" r="3" fill="#000"/>
+          <line x1="16" y1="2" x2="16" y2="8" stroke="url(#logoGrad)" stroke-width="1.5"/>
+          <line x1="16" y1="24" x2="16" y2="30" stroke="url(#logoGrad)" stroke-width="1.5"/>
+          <line x1="2" y1="10" x2="8" y2="12" stroke="url(#logoGrad)" stroke-width="1.5"/>
+          <line x1="24" y1="20" x2="30" y2="22" stroke="url(#logoGrad)" stroke-width="1.5"/>
+          <line x1="30" y1="10" x2="24" y2="12" stroke="url(#logoGrad)" stroke-width="1.5"/>
+          <line x1="8" y1="20" x2="2" y2="22" stroke="url(#logoGrad)" stroke-width="1.5"/>
+        </svg>
+        ShadowOS
+      </button>
+    </div>
+    <div id="taskbar-search">
+      <input type="text" id="search-input" placeholder="搜索... (Ctrl+K)">
+    </div>
+    <div id="taskbar-items"></div>
+    <div id="taskbar-tray">
+      <span class="tray-icon" id="notification-bell" title="通知"></span>
+      <span class="tray-icon" id="lock-btn" title="锁屏"></span>
+    </div>
+    <div id="taskbar-clock"></div>
+  </div>
+
+  <div id="context-menu"></div>
+  <div id="notification-panel"></div>
+  <div id="global-search">
+    <div class="global-search-input-wrap">
+      <input type="text" class="global-search-input" placeholder="搜索应用和文件...">
+    </div>
+    <div class="search-results"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/markdown/markdown.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
